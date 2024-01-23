@@ -20,7 +20,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (userInfo.sub != undefined) {
+    if (userInfo?.sub != undefined) {
       const query = userQuery(userInfo.sub)
       client.fetch(query).then((data) => {
         setUser(data[0])
@@ -43,9 +43,18 @@ const Home = () => {
           <Link to="/">
             <img src={logo} className="w-40" alt="logo" />
           </Link>
-          <Link to={`user-profile/${user?._id}`}>
-            <img src={user?.image} className="w-10" alt="logo" />
-          </Link>
+          { user ? (
+            <Link to={`user-profile/${user?._id}`}>
+              <img src={user?.image} className="w-10" alt="logo2" />
+            </Link>
+          ) : (
+            <div className="flex gap-3">
+              <Link to={"/login"} className="md:hidden">
+                <button className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none">Login</button>
+              </Link>
+            </div>
+          )}
+          
         </div>
         {toggleSidebar && (
           <div className="fixed w-4/5 bg-white h-screen overflow-y-auto shadow-md z-10 animate-slide-in">

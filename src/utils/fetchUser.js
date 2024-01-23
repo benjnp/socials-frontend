@@ -5,6 +5,6 @@ export const fetchUser = () => {
     if (userInfo)
         return(jwtDecode(userInfo));
     else
-        return {}
+        return null
 
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { MdDownloadForOffline } from 'react-icons/md'
@@ -10,30 +10,41 @@ import { fetchUser } from '../utils/fetchUser'
 const Pin = ({ pin: { postedBy, image, _id, destination, like } }) => {
 
   const [postHovered, setPostHovered] = useState(false)  
+  const [alreadyLiked, setAlreadyLiked] = useState(false)
   const navigate = useNavigate()
   const user = fetchUser()
-  const alreadyLiked = !!(like?.filter((item) => item.likedBy._id === user.sub))?.length
-
+  
   const likePin = (id) => {
-    if(!alreadyLiked) {
-        client.patch(id).setIfMissing({ like: [] })
-        .insert('after', 'like[-1]', [{
-            _key: uuidv4(),
-            userId: user.sub,
-            likedBy: {
-                _type: 'postedBy',
-                _ref: user.sub
-            }
-        }])
-        .commit()
-        .then(() => {
-            window.location.reload();
-        })
-    } 
+
+    if(Object.keys(user).length !== 0){
+        if(!alreadyLiked) {
+            client.patch(id).setIfMissing({ like: [] })
+            .insert('after', 'like[-1]', [{
+                _key: uuidv4(),
+                userId: user?.sub,
+                likedBy: {
+                    _type: 'postedBy',
+                    _ref: user.sub
+                }
+            }])
+            .commit()
+            .then(() => {
+                window.location.reload();
+            })
+        } 
+    }
+    
   }
 
+  useEffect(() => {
+    let isLiked
+    if(user) {
+        isLiked = !!(like?.filter((item) => item.likedBy?._id === user?.sub))?.length
+        setAlreadyLiked(isLiked)
+    }
+  }, [])
+
   const deletePin = (id) => {   
-    // console.log("Deleting ", id)
     client.delete(id).then(() => {
         window.location.reload();
     })
@@ -51,7 +62,8 @@ const Pin = ({ pin: { postedBy, image, _id, destination, like } }) => {
             <img src={urlFor(image).width(250).url()} alt="user-post" className="rounded-lg w-full"/>
             {postHovered && (
                 <div className="absolute top-0 w-full h-full flex flex-col justify-between p-1 pr-2 pt-2 pb-2 z-50" style={{height: '100%'}}>
-                    <div className="flex items-center justify-between">
+                    {user && <p>Hi</p>}
+                    {/* <div className="flex items-center justify-between">
                         <div className="flex gap-2">
                             <a 
                                 href={`${image?.asset?.url}?dl=`}
@@ -79,7 +91,7 @@ const Pin = ({ pin: { postedBy, image, _id, destination, like } }) => {
                                 Like
                             </button>
                         )}
-                    </div>
+                    </div> */}
                     <div className="flex justify-between items-center gap-2 w-full">
                         {destination && (
                             <a
@@ -90,11 +102,11 @@ const Pin = ({ pin: { postedBy, image, _id, destination, like } }) => {
                                 onClick={(e) => e.stopPropagation()}
                             >
                                 <BsFillArrowUpRightCircleFill />
-                                <span className="text-xs">{destination.slice(8,22)}</span>
+                                <span className="text-xs">{destination?.slice(8,22)}</span>
                                 
                             </a>
                         )}
-                        {postedBy?._id === user.sub && (
+                        {postedBy?._id === user?.sub && (
                             <button 
                                 type="button" 
                                 onClick={(e) => {
