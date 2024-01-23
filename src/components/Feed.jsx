@@ -20,7 +20,6 @@ const Feed = () => {
       })
     } else {
       client.fetch(feedQuery).then((data) => {
-        console.log(data)
         setPins(data)
         setLoading(false)
       })
@@ -31,7 +30,7 @@ const Feed = () => {
 
   return (
     <div>
-      {pins && <MasonryLayout pins={pins}/>}
+      <MasonryLayout pins={pins}/>
     </div>
   )
 }

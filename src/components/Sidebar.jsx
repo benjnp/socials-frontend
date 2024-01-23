@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useState, useEffect, } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import { RiHomeFill } from 'react-icons/ri'
 import { IoIosArrowForward } from 'react-icons/io'
+import { categoryQuery } from '../utils/data'
+import { client } from '../client'
 
 import logo from '../assets/socials_black.png'
 
@@ -18,6 +20,13 @@ const categories = [
 
 const Sidebar = ({ user, closeToggle }) => {
 
+    const [ categories, setCategories ] = useState(null)
+
+    useEffect(() => {
+        client.fetch(categoryQuery).then((data) => {
+            setCategories(data)
+        })}, [])
+    
   const handleCloseSidebar = () => {
     if(closeToggle)
         closeToggle(false)
@@ -39,13 +48,14 @@ const Sidebar = ({ user, closeToggle }) => {
                     Home
                 </NavLink>
                 <h3 className="mt-2 px-5 text-base 2xl:text-xl">Discover Categories</h3>
-                {categories.slice(0, categories.length - 1).map((category) => (
+                {categories?.map((category) => (
                     <NavLink 
                         to={`/category/${category.name}`}
                         className={({ isActive }) => isActive ? isActiveStyle : isNotActiveStyle}
                         onClick={handleCloseSidebar}
                         key={category.name}
                     >
+                        <img src={category.image.asset.url} alt="category" className="w-8 h-8 rounded-full shadow-sm" />
                         {category.name}
                     </NavLink>
                 ))}

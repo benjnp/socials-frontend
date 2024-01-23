@@ -4,7 +4,7 @@ export const userQuery = (userId) => {
 }
 
 export const searchQuery = (searchTerm) => {
-    const query = `*[_type == "pin" && title match '${searchTerm}*' || category match '${searchTerm}*' || about match '${searchTerm}*']{
+    const query = `*[_type == "pin" && title match '${searchTerm}*' || category->name match '${searchTerm}*' || about match '${searchTerm}*']{
         image {
             asset -> {
                 url
@@ -114,6 +114,14 @@ export const pinDetailQuery = (pinId) => {
       },
       _id,
       destination,
+      like[] {
+        _key,
+        likedBy -> {
+            _id,
+            userName,
+            image
+        },
+      },
       postedBy->{
         _id,
         userName,
@@ -137,19 +145,20 @@ export const pinDetailQuery = (pinId) => {
         userName,
         image
       },
-      like[]{
-        postedBy->{
-          _id,
-          userName,
-          image
+      like[] {
+        _key,
+        likedBy -> {
+            _id,
+            userName,
+            image
         },
       },
     }`;
     return query;
   };
   
-  export const userSavedPinsQuery = (userId) => {
-    const query = `*[_type == 'pin' && '${userId}' in save[].userId ] | order(_createdAt desc) {
+  export const userLikedPinsQuery = (userId) => {
+    const query = `*[_type == 'pin' && '${userId}' in like[].userId ] | order(_createdAt desc) {
       image{
         asset->{
           url
@@ -162,11 +171,12 @@ export const pinDetailQuery = (pinId) => {
         userName,
         image
       },
-      like[]{
-        postedBy->{
-          _id,
-          userName,
-          image
+      like[] {
+        _key,
+        likedBy -> {
+            _id,
+            userName,
+            image
         },
       },
     }`;
